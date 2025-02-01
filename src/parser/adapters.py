@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 
 from .constants import SortType
-from .utils.abc import WbIterable
+from .utils.classes import WbIterable
 
 
 class WbCard:
@@ -9,7 +9,7 @@ class WbCard:
     Represents a WildBerries product card.
     '''
 
-    def init(self, **kwargs):
+    def __init__(self, **kwargs):
         for k, v in kwargs.items():
             if isinstance(v, dict):
                 setattr(self, k, WbCard(**v))
@@ -24,10 +24,10 @@ class WbCard:
         if (sizes := kwargs.get('sizes')):
             self.price = sizes[0]['price']['product'] // 100
 
-    def str(self):
+    def __str__(self):
         return f'<WbCard "{self.name}">' if hasattr(self, 'name') else 'Unnamed'
 
-    def getattr(self, name):
+    def __getattr__(self, name):
         return getattr(self, name, None)
     
 
@@ -36,7 +36,7 @@ class WbPage(WbIterable):
     Represents a WildBerries page with products.
     '''
 
-    def init(self, page: list | tuple):
+    def __init__(self, page: list | tuple):
         if not page:
             self.data = tuple()
             return
@@ -56,6 +56,9 @@ class WbPage(WbIterable):
             SortType.RATING: lambda x: x.rating
         }
         key = keys.get(sort_type)
+        if not key:
+            raise ValueError(f'Sort type "{sort_type}" is not available for WbPage.sort method.')
+
         self.cards.sort(key=key)
         return self
     
@@ -77,7 +80,7 @@ class WbPages(WbIterable):
     Represents a collection of WbPage instances.
     '''
 
-    def init(self, data: list):
+    def __init__(self, data: list):
         try:
             self.data = tuple(
                     WbPage(page['data']['products']) for page in data
