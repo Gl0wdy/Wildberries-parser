@@ -1,14 +1,10 @@
-from utils.constants import SortType
+from parser.utils.constants import SortType
+from .common import WbKwargsInit
 
 
-class WbCategory:
+class WbCategory(WbKwargsInit):
     def __init__(self, parser = None, **kwargs):
-        for k, v in kwargs.items():
-            if isinstance(v, list):
-                setattr(self, k, [WbCategory(parser=parser, **i) for i in v])
-            else:
-                setattr(self, k, v)
-        self.data = kwargs
+        super().__init__(**kwargs)
         self._parser = parser
 
     async def get_products(
@@ -22,12 +18,3 @@ class WbCategory:
             pages_limit=pages_limit
         )
         return res
-
-    def __getattr__(self, name):
-        try:
-            return self.data[name]
-        except:
-            return None
-
-    def __repr__(self):
-        return f'<{self.__class__.__name__} "{self.name}">'

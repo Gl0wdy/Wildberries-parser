@@ -1,32 +1,18 @@
-from utils.classes import WbIterable
-from utils.constants import SortType
+from .common import WbIterable, WbKwargsInit
+from parser.utils.constants import SortType
 
 
-class WbCard:
+class WbCard(WbKwargsInit):
     '''
     Represents a WildBerries product card.
     '''
-
     def __init__(self, **kwargs):
-        for k, v in kwargs.items():
-            if isinstance(v, dict):
-                setattr(self, k, WbCard(**v))
-            elif isinstance(v, list):
-                setattr(self, k, [WbCard(**item) if isinstance(item, dict) else item for item in v])
-            else:
-                setattr(self, k, v)
-        self.raw = kwargs
+        super().__init__(**kwargs)
 
         if (product_id := kwargs.get('id')):
             self.url = f'https://www.wildberries.ru/catalog/{product_id}/detail.aspx'
         if (sizes := kwargs.get('sizes')):
             self.price = sizes[0]['price']['product'] // 100
-
-    def __str__(self):
-        return f'<WbCard "{self.name}">' if hasattr(self, 'name') else 'Unnamed'
-
-    def __getattr__(self, name):
-        return getattr(self, name, None)
     
 
 class WbPage(WbIterable):
@@ -93,13 +79,3 @@ class WbPages(WbIterable):
                 total.append(card)
         
         return WbPage(total)
-        
-    @property
-    def most_expensive(self):
-        most_expensives = map(lambda x: x.most_expensive, self.data)
-        return max(most_expensives, key=lambda x: x.price)
-    
-    @property
-    def least_expensive(self):
-        least_expensives = map(lambda x: x.least_expensive, self.data)
-        return min(least_expensives, key=lambda x: x.price)

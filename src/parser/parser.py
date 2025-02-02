@@ -2,8 +2,8 @@ import asyncio
 from aiohttp import ClientSession
 import json
 
-from utils.constants import SortType
-from adapters import WbPages, WbCategory      
+from parser.utils.constants import SortType
+from parser.adapters import WbPages, WbCategory, WbCard   
 
 
 class WbParser:
@@ -30,10 +30,10 @@ class WbParser:
         return paginated_data
         
     async def get_categories(self):
-        response = await self._make_request(
+        data = await self._make_request(
             url='https://static-basket-01.wbbasket.ru/vol0/data/main-menu-ru-ru-v2.json'
         )
-        return [WbCategory(parser=self, **i) for i in response]
+        return [WbCategory(parser=self, **i) for i in data]
         
     async def get_category_products(
             self,
@@ -52,6 +52,12 @@ class WbParser:
         data = await asyncio.gather(*tasks)
         paginated_data = WbPages(data)
         return paginated_data
+    
+    async def get_product_feedbacks(self, product: WbCard):
+        data = await self._make_request(
+            url=f'https://feedbacks2.wb.ru/feedbacks/v2/{product.id}'
+        )
+
     
     async def _make_request(self, url: str, **kwargs):
         kwargs.update(
