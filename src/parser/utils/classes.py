@@ -14,6 +14,9 @@ class WbIterable:
             return self.data[key]
         except:
             return None
+        
+    def __len__(self):
+        return len(self.data)
     
     def __repr__(self):
         return f'<{self.__class__.__name__} {len(self.data)}>'
