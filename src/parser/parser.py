@@ -2,9 +2,8 @@ import asyncio
 from aiohttp import ClientSession
 import json
 
-from .constants import SortType
-from .adapters import WbPages, WbCategory
-        
+from utils.constants import SortType
+from adapters import WbPages, WbCategory      
 
 
 class WbParser:
